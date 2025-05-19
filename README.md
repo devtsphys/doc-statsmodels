@@ -556,3 +556,225 @@ print(f'MAPE: {mape(y_true, y_pred)}%')
 4. **Not addressing endogeneity**:
    - Use instrumental variables or panel methods when appropriate
    - Consider causal inference methods for causality questions
+
+# Python statsmodels Reference Card
+
+## Table of Contents
+- [Installation and Import](#installation-and-import)
+- [Data Preparation](#data-preparation)
+- [Linear Regression Models](#linear-regression-models)
+- [Discrete Choice Models](#discrete-choice-models)
+- [Time Series Analysis](#time-series-analysis)
+- [ANOVA and ANCOVA](#anova-and-ancova)
+- [Nonparametric Methods](#nonparametric-methods)
+- [Generalized Linear Models (GLM)](#generalized-linear-models-glm)
+- [Robust Linear Models](#robust-linear-models)
+- [Mixed Linear Models](#mixed-linear-models)
+- [Multivariate Models](#multivariate-models)
+- [Hypothesis Testing](#hypothesis-testing)
+- [Diagnostics and Specification Tests](#diagnostics-and-specification-tests)
+- [Plotting and Visualization](#plotting-and-visualization)
+
+## Installation and Import
+
+```python
+# Installation
+pip install statsmodels
+
+# Common imports
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import numpy as np
+import pandas as pd
+```
+
+## Data Preparation
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `sm.add_constant()` | Add a constant (intercept) to a model | `X = sm.add_constant(X)` |
+| `sm.datasets` | Access built-in datasets | `data = sm.datasets.get_rdataset("mtcars").data` |
+| `sm.tools.tools.categorical()` | Convert categorical variables to dummy variables | `dummies = sm.tools.tools.categorical(x, drop=True)` |
+| `sm.tsa.filters.hp_filter()` | Hodrick-Prescott filter for time series | `cycle, trend = sm.tsa.filters.hp_filter(data, lamb=1600)` |
+
+## Linear Regression Models
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.OLS()` | Ordinary Least Squares | ```model = sm.OLS(y, X).fit()``` |
+| `smf.ols()` | Formula-based OLS | ```model = smf.ols('y ~ x1 + x2', data=df).fit()``` |
+| `model.summary()` | Model summary | ```print(model.summary())``` |
+| `model.params` | Model parameters | ```coefficients = model.params``` |
+| `model.predict()` | Make predictions | ```predictions = model.predict(X_new)``` |
+| `model.conf_int()` | Confidence intervals | ```ci = model.conf_int(alpha=0.05)``` |
+| `model.rsquared` | R-squared value | ```rsq = model.rsquared``` |
+| `model.rsquared_adj` | Adjusted R-squared | ```adj_rsq = model.rsquared_adj``` |
+| `model.aic` | Akaike Information Criterion | ```aic = model.aic``` |
+| `model.bic` | Bayesian Information Criterion | ```bic = model.bic``` |
+| `model.pvalues` | p-values | ```pvals = model.pvalues``` |
+| `model.tvalues` | t-statistics | ```tvals = model.tvalues``` |
+| `model.fvalue` | F-statistic | ```fval = model.fvalue``` |
+| `model.mse_model` | Mean squared error of model | ```mse = model.mse_model``` |
+| `model.mse_resid` | Mean squared error of residuals | ```mse_r = model.mse_resid``` |
+| `model.bse` | Standard errors of parameters | ```std_errors = model.bse``` |
+| `sm.WLS()` | Weighted Least Squares | ```model = sm.WLS(y, X, weights=w).fit()``` |
+| `sm.GLS()` | Generalized Least Squares | ```model = sm.GLS(y, X, sigma=sigma).fit()``` |
+| `sm.GLSAR()` | ARMA errors regression | ```model = sm.GLSAR(y, X, rho=1).fit()``` |
+| `sm.RegressionResults.compare_f_test()` | F-test for nested models | ```model1.compare_f_test(model2)``` |
+| `sm.OLS.from_formula()` | Alternative formula API | ```model = sm.OLS.from_formula('y ~ x1 + x2', data=df).fit()``` |
+
+## Discrete Choice Models
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.Logit()` | Logistic regression | ```model = sm.Logit(y, X).fit()``` |
+| `smf.logit()` | Formula-based logistic regression | ```model = smf.logit('y ~ x1 + x2', data=df).fit()``` |
+| `sm.Probit()` | Probit regression | ```model = sm.Probit(y, X).fit()``` |
+| `smf.probit()` | Formula-based probit regression | ```model = smf.probit('y ~ x1 + x2', data=df).fit()``` |
+| `sm.MNLogit()` | Multinomial logistic regression | ```model = sm.MNLogit(y, X).fit()``` |
+| `smf.mnlogit()` | Formula-based multinomial logistic | ```model = smf.mnlogit('y ~ x1 + x2', data=df).fit()``` |
+| `model.predict()` | Predict probabilities | ```probs = model.predict(X_new)``` |
+| `model.pred_table()` | Prediction table | ```table = model.pred_table()``` |
+| `model.summary()` | Model summary | ```print(model.summary())``` |
+| `model.pvalues` | p-values | ```pvals = model.pvalues``` |
+| `model.params` | Model parameters | ```params = model.params``` |
+| `model.llf` | Log-likelihood | ```ll = model.llf``` |
+| `model.llnull` | Null log-likelihood | ```ll0 = model.llnull``` |
+| `model.pseudo_rsquared` | McFadden's pseudo R-squared | ```pseudo_r2 = model.prsquared``` |
+
+## Time Series Analysis
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.tsa.ARMA()` | ARMA model | ```model = sm.tsa.ARMA(y, order=(p,q)).fit()``` |
+| `sm.tsa.ARIMA()` | ARIMA model | ```model = sm.tsa.ARIMA(y, order=(p,d,q)).fit()``` |
+| `sm.tsa.statespace.SARIMAX()` | SARIMAX model | ```model = sm.tsa.statespace.SARIMAX(y, order=(p,d,q), seasonal_order=(P,D,Q,s)).fit()``` |
+| `sm.tsa.VAR()` | Vector Autoregression | ```model = sm.tsa.VAR(y).fit(maxlags=5)``` |
+| `sm.tsa.VECM()` | Vector Error Correction Model | ```model = sm.tsa.VECM(y, k_ar_diff=2, coint_rank=1).fit()``` |
+| `sm.tsa.statespace.ExponentialSmoothing()` | Exponential smoothing | ```model = sm.tsa.statespace.ExponentialSmoothing(y).fit()``` |
+| `sm.tsa.statespace.UnobservedComponents()` | Unobserved components model | ```model = sm.tsa.statespace.UnobservedComponents(y, level='local linear trend', seasonal=12).fit()``` |
+| `sm.tsa.statespace.DynamicFactor()` | Dynamic factor model | ```model = sm.tsa.statespace.DynamicFactor(y, k_factors=1, factor_order=1).fit()``` |
+| `sm.tsa.seasonal_decompose()` | Seasonal decomposition | ```result = sm.tsa.seasonal_decompose(y, model='additive')``` |
+| `sm.tsa.stattools.adfuller()` | Augmented Dickey-Fuller test | ```result = sm.tsa.stattools.adfuller(y)``` |
+| `sm.tsa.stattools.kpss()` | KPSS test for stationarity | ```result = sm.tsa.stattools.kpss(y)``` |
+| `sm.tsa.stattools.acf()` | Autocorrelation function | ```acf = sm.tsa.stattools.acf(y)``` |
+| `sm.tsa.stattools.pacf()` | Partial autocorrelation function | ```pacf = sm.tsa.stattools.pacf(y)``` |
+| `sm.tsa.stattools.grangercausalitytests()` | Granger causality test | ```granger_test = sm.tsa.stattools.grangercausalitytests(data, maxlag=2)``` |
+| `sm.tsa.stattools.arma_order_select_ic()` | ARMA order selection | ```best_order = sm.tsa.stattools.arma_order_select_ic(y, max_ar=5, max_ma=5)``` |
+| `model.forecast()` | Forecast future values | ```forecasts = model.forecast(steps=5)``` |
+| `model.get_forecast()` | Forecast with confidence intervals | ```forecast = model.get_forecast(steps=5)``` |
+| `model.impulse_responses()` | Impulse response functions (VAR) | ```irf = model.impulse_responses(steps=10)``` |
+| `model.plot_diagnostics()` | Diagnostic plots | ```model.plot_diagnostics()``` |
+
+## ANOVA and ANCOVA
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.stats.anova_lm()` | ANOVA for linear models | ```anova_table = sm.stats.anova_lm(model)``` |
+| `smf.ols('y ~ C(group)', data=df).fit()` | One-way ANOVA | ```model = smf.ols('y ~ C(group)', data=df).fit()``` |
+| `smf.ols('y ~ C(group1) + C(group2)', data=df).fit()` | Two-way ANOVA | ```model = smf.ols('y ~ C(group1) + C(group2)', data=df).fit()``` |
+| `smf.ols('y ~ C(group1) * C(group2)', data=df).fit()` | Two-way ANOVA with interaction | ```model = smf.ols('y ~ C(group1) * C(group2)', data=df).fit()``` |
+| `smf.ols('y ~ C(group) + x', data=df).fit()` | ANCOVA | ```model = smf.ols('y ~ C(group) + x', data=df).fit()``` |
+| `smf.ols('y ~ C(group) * x', data=df).fit()` | ANCOVA with interaction | ```model = smf.ols('y ~ C(group) * x', data=df).fit()``` |
+
+## Nonparametric Methods
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.nonparametric.KDEUnivariate()` | Kernel Density Estimation | ```kde = sm.nonparametric.KDEUnivariate(data).fit()``` |
+| `sm.nonparametric.KDEMultivariate()` | Multivariate Kernel Density Estimation | ```kde = sm.nonparametric.KDEMultivariate(data=data, var_type='c' * dim).fit()``` |
+| `sm.nonparametric.lowess()` | LOWESS smoothing | ```smoothed = sm.nonparametric.lowess(y, x, frac=0.3)``` |
+| `sm.nonparametric.KernelReg()` | Kernel regression | ```kreg = sm.nonparametric.KernelReg(y, X, var_type='c' * X.shape[1])``` |
+
+## Generalized Linear Models (GLM)
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.GLM()` | Generalized Linear Model | ```model = sm.GLM(y, X, family=sm.families.Gaussian()).fit()``` |
+| `smf.glm()` | Formula-based GLM | ```model = smf.glm('y ~ x1 + x2', data=df, family=sm.families.Gaussian()).fit()``` |
+| `sm.families.Gaussian()` | Gaussian family (identity link) | ```family = sm.families.Gaussian()``` |
+| `sm.families.Binomial()` | Binomial family (logit link) | ```family = sm.families.Binomial()``` |
+| `sm.families.Poisson()` | Poisson family (log link) | ```family = sm.families.Poisson()``` |
+| `sm.families.NegativeBinomial()` | Negative binomial family | ```family = sm.families.NegativeBinomial(alpha=1.0)``` |
+| `sm.families.Gamma()` | Gamma family (inverse link) | ```family = sm.families.Gamma()``` |
+| `sm.families.InverseGaussian()` | Inverse Gaussian family | ```family = sm.families.InverseGaussian()``` |
+| `sm.families.Tweedie()` | Tweedie family | ```family = sm.families.Tweedie(var_power=1.5)``` |
+| `family.link` | Link function | ```link = family.link``` |
+| `model.predict()` | Predict values | ```predictions = model.predict(X_new)``` |
+| `model.summary()` | Model summary | ```print(model.summary())``` |
+| `model.deviance` | Model deviance | ```dev = model.deviance``` |
+| `model.null_deviance` | Null deviance | ```null_dev = model.null_deviance``` |
+| `model.pearson_chi2` | Pearson chi-squared | ```chi2 = model.pearson_chi2``` |
+
+## Robust Linear Models
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.RLM()` | Robust Linear Model | ```model = sm.RLM(y, X).fit()``` |
+| `smf.rlm()` | Formula-based Robust Linear Model | ```model = smf.rlm('y ~ x1 + x2', data=df).fit()``` |
+| `sm.robust.scale.mad()` | Median Absolute Deviation | ```mad = sm.robust.scale.mad(data)``` |
+| `sm.robust.scale.huber()` | Huber's scaling | ```huber_scale = sm.robust.scale.huber(data)``` |
+| `model.weights` | Robust weights | ```weights = model.weights``` |
+
+## Mixed Linear Models
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.MixedLM()` | Mixed Linear Model | ```model = sm.MixedLM(y, X, groups=groups).fit()``` |
+| `smf.mixedlm()` | Formula-based Mixed LM | ```model = smf.mixedlm('y ~ x1', data=df, groups=df['group']).fit()``` |
+| `model.random_effects` | Random effects | ```re = model.random_effects``` |
+| `model.fixed_effects` | Fixed effects | ```fe = model.fixed_effects``` |
+
+## Multivariate Models
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.multivariate.MANOVA()` | Multivariate Analysis of Variance | ```mv = sm.multivariate.MANOVA(y, x)``` |
+| `sm.multivariate.PCA()` | Principal Component Analysis | ```pca = sm.multivariate.PCA(data, standardize=True).fit()``` |
+| `sm.multivariate.factor.Factor()` | Factor Analysis | ```fa = sm.multivariate.factor.Factor(data, n_factor=2).fit()``` |
+
+## Hypothesis Testing
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.stats.ttest_ind()` | Independent samples t-test | ```result = sm.stats.ttest_ind(group1, group2)``` |
+| `sm.stats.ztest()` | Z-test | ```result = sm.stats.ztest(data, value=0)``` |
+| `sm.stats.weightstats.DescrStatsW()` | Weighted statistics | ```stats = sm.stats.weightstats.DescrStatsW(data, weights=weights)``` |
+| `stats.ttest_mean()` | One-sample t-test | ```t_test = stats.ttest_mean(3)``` |
+| `sm.stats.proportion.proportions_ztest()` | Test for proportions | ```z_score, p_value = sm.stats.proportion.proportions_ztest(count, nobs)``` |
+| `sm.stats.diagnostic.lilliefors()` | Lilliefors test for normality | ```test_stat, p_value = sm.stats.diagnostic.lilliefors(data)``` |
+| `sm.stats.power.tt_ind_solve_power()` | Power analysis for t-test | ```sample_size = sm.stats.power.tt_ind_solve_power(effect_size=0.5, alpha=0.05, power=0.8)``` |
+
+## Diagnostics and Specification Tests
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.stats.diagnostic.het_breuschpagan()` | Breusch-Pagan test for heteroskedasticity | ```lm, lm_pvalue, fvalue, f_pvalue = sm.stats.diagnostic.het_breuschpagan(residuals, X)``` |
+| `sm.stats.diagnostic.het_white()` | White's test for heteroskedasticity | ```lm, lm_pvalue, fvalue, f_pvalue = sm.stats.diagnostic.het_white(residuals, X)``` |
+| `sm.stats.diagnostic.acorr_ljungbox()` | Ljung-Box test for autocorrelation | ```lb, p = sm.stats.diagnostic.acorr_ljungbox(residuals)``` |
+| `sm.stats.diagnostic.acorr_breusch_godfrey()` | Breusch-Godfrey test for autocorrelation | ```lm, lm_pvalue, fvalue, f_pvalue = sm.stats.diagnostic.acorr_breusch_godfrey(results)``` |
+| `sm.stats.diagnostic.linear_reset()` | RESET test for functional form | ```reset = sm.stats.diagnostic.linear_reset(results)``` |
+| `sm.stats.diagnostic.linear_harvey_collier()` | Harvey-Collier test for linearity | ```hc = sm.stats.diagnostic.linear_harvey_collier(results)``` |
+| `sm.stats.diagnostic.linear_rainbow()` | Rainbow test for linearity | ```rainbow = sm.stats.diagnostic.linear_rainbow(results)``` |
+| `sm.stats.diagnostic.variance_inflation_factor()` | Variance Inflation Factor | ```vif = sm.stats.diagnostic.variance_inflation_factor(X, i)``` |
+| `sm.stats.outliers_influence.OLSInfluence()` | Influence and outlier measures | ```influence = sm.stats.outliers_influence.OLSInfluence(results)``` |
+| `influence.summary_frame()` | Summary of influence measures | ```inf_sum = influence.summary_frame()``` |
+| `influence.cooks_distance` | Cook's distance | ```cooks_d = influence.cooks_distance``` |
+| `influence.hat_matrix_diag` | Leverage (hat matrix diagonal) | ```leverage = influence.hat_matrix_diag``` |
+| `influence.resid_studentized` | Studentized residuals | ```stud_resid = influence.resid_studentized``` |
+
+## Plotting and Visualization
+
+| Model/Function | Description | Example |
+|----------------|-------------|---------|
+| `sm.graphics.plot_fit()` | Plot fitted vs. actual values | ```sm.graphics.plot_fit(results, 0)``` |
+| `sm.graphics.plot_regress_exog()` | Component-component plus residual plot | ```sm.graphics.plot_regress_exog(results, 'x1')``` |
+| `sm.graphics.plot_partregress()` | Partial regression plot | ```sm.graphics.plot_partregress('y', 'x1', ['x2', 'x3'], data=df)``` |
+| `sm.graphics.plot_ccpr()` | Component-component plus residual plot | ```sm.graphics.plot_ccpr(results, 'x1')``` |
+| `sm.graphics.plot_partregress_grid()` | Grid of partial regression plots | ```sm.graphics.plot_partregress_grid(results)``` |
+| `sm.graphics.plot_leverage_resid2()` | Influence plot | ```sm.graphics.plot_leverage_resid2(results)``` |
+| `sm.graphics.qqplot()` | Quantile-quantile plot | ```sm.graphics.qqplot(residuals)``` |
+| `sm.graphics.influence_plot()` | Influence plot | ```sm.graphics.influence_plot(results)``` |
+| `sm.graphics.tsa.plot_acf()` | Autocorrelation plot | ```sm.graphics.tsa.plot_acf(series)``` |
+| `sm.graphics.tsa.plot_pacf()` | Partial autocorrelation plot | ```sm.graphics.tsa.plot_pacf(series)``` |
+| `model.plot_diagnostics()` | Model diagnostic plots | ```model.plot_diagnostics(figsize=(12, 8))``` |
